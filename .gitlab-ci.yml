@@ -1,0 +1,73 @@
+stages:
+  - test
+  - deploy
+
+mypy-scan:
+  image: python:3-slim-buster
+  stage: test
+  before_script:
+    - pip3 install mypy
+  after_script: []
+  allow_failure: false
+  script:
+    - mypy python/ --ignore-missing-imports --install-types --non-interactive
+  only:
+    - merge_requests
+
+run-unit-tests:
+  image: python:3.8-buster
+  stage: test
+  before_script:
+    - pip3 install -r ./requirements.txt
+    - pip3 install -r ./test/requirements.txt
+  after_script: []
+  allow_failure: false
+  script:
+    - export PYTHONPATH=./
+    - pytest test
+  only:
+    - merge_requests
+
+validate-install:
+  image: python:3.8-buster
+  stage: test
+  script:
+    - pip install .
+    - python -c "import {FILL ME IN}"  # replace with the name of your package
+  only:
+    - merge_requests
+    - master
+
+tag_with_sdk_version:
+  stage: deploy
+  before_script:
+    - git config --global user.email "gitlab_ci@arthur.ai"
+    - git config --global user.name "GitLab CI"
+  script:
+    - VERSION=$(cat version.py | grep -o '".*"' | sed 's/"//g')
+    - git tag "$VERSION"
+    - git tag
+    - git push --tags http://root:$PRIVATE_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:master
+  only:
+    - master
+
+push_to_nexus:
+  variables:
+    PIP_CONFIG_FILE: /root/pip.conf
+  image: python:3-buster
+  stage: deploy
+  before_script:
+    - cp pip.conf ~/pip.conf
+    - |
+      echo 'machine repository.arthur.ai
+          login '"${NEXUS_REPOSITORY_USERNAME}"'
+          password '"${NEXUS_REPOSITORY_PASSWORD}" >> ~/.netrc
+    - pip install pyyaml twine
+    - cd python
+  script:
+    - python setup_backup.py sdist -d publish bdist_wheel -d publish
+    - twine upload --repository-url https://repository.arthur.ai/repository/pypi-local/ -u ${NEXUS_REPOSITORY_USERNAME} -p ${NEXUS_REPOSITORY_PASSWORD} --verbose publish/*
+  only:
+    - master
+
+## THIS PIPELINE DOES NOT PUBLISH TO PUBLIC PYPI
