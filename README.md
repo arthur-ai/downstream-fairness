@@ -3,7 +3,8 @@
 Include a description of your package.
 
 ### Quickstart
-This section should include example usages and anything else necessary for someone to use your package. Provide a few lines of code or example command line usage. 
+This section should include example usages and anything else necessary for someone to use your package. 
+Provide a few lines of code or example command line usage. 
 
 ```
 >>> from rename_me.process import Processor
@@ -15,9 +16,13 @@ This section should include example usages and anything else necessary for someo
 Rename the folder `rename_me` to the name of your package.
 Fill in the sections of `setup.py` marked `FILL_ME_IN`  
 
-To generate the requirements file:  
+Setting up requirements:  
 1. Create a clean virtual env and install the packages necessary to get a working version of your package locally.
-2. Run `pip freeze > requirements.txt` to write your install to the requirements file.
+2. Add all your _direct_ imports to the dependency section of `pyproject.toml`. An import is direct if your code uses 
+this package via an explicit `import x` statement. Pin dependencies to the major version using `~=`, ex. `numpy~=1.0`. This 
+will install the latest compatible version, meaning greater than or equal to the version, but not exceeding `1.*`.
+3. Run `pip freeze > requirements.txt` to write your install to the requirements file. This file will also include 
+indirect dependencies and their versions.
 
 
 ### Local Development

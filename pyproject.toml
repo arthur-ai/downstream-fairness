@@ -7,12 +7,16 @@ name = "FILL ME IN"
 description = "FILL ME IN "
 authors = [
     {"name" = 'ArthurAI', "email" = "info@arthur.ai"}
-
 ]
 readme = "README.md"
 license = {text = "MIT"}
 classifiers = []  # fill this in if publishing to public pypi
 dynamic = ["version"]
+
+dependencies = [
+    # FILL ME IN
+    "numpy~=1.0"  # example, remove if not using
+]
 
 [metadata]
 url = 'http://arthur.ai'

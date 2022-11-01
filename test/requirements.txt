@@ -1,1 +1,1 @@
-pytest
+pytest==INSERT_PYTEST_VERSION
