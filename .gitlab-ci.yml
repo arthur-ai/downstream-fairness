@@ -10,7 +10,7 @@ mypy-scan:
   after_script: []
   allow_failure: false
   script:
-    - mypy python/ --ignore-missing-imports --install-types --non-interactive
+    - mypy downstream_fairness/ --ignore-missing-imports --install-types --non-interactive
   only:
     - merge_requests
 
@@ -33,7 +33,7 @@ validate-install:
   stage: test
   script:
     - pip install .
-    - python -c "import {FILL ME IN}"  # replace with the name of your package
+    - python -c "import downstream_fairness"  # replace with the name of your package
   only:
     - merge_requests
     - master

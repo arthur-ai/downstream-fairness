@@ -1,51 +1,48 @@
-### INSERT LIBRARY NAME HERE
+### Downstream Fairness
 
-Include a description of your package.
+We implement the algorithm presented in [Geometric Repair for Fair Classification at Any Decision Threshold](https://arxiv.org/pdf/2203.07490.pdf).
+The algorithm looks at the scores, labels, and sensitive attribute in a dataset, and determines a set of adjustments.
+The original set of adjustments allow one to adjust the prediction probabilities of a binary classifier, and perturb
+them (by adding the appropriate adjustment to a prediction probability), so that you can achieve `demographic parity`.
+To achieve other fairness definitions, such as equalized odds and equal opportunity, our algorithm provides a `lambda`
+value. This `lambda` value is multiplied to each entry of the set of adjustments, and then those can be added to
+predictions. Here is a good way to think about it:
+
+```
+prediction_probability + adjustment_value # achieves demographic parity
+
+prediction_probability + lambda_val * adjustment_value # achieves some fairness definition attached to the lambda value
+```
 
 ### Quickstart
-This section should include example usages and anything else necessary for someone to use your package. 
-Provide a few lines of code or example command line usage. 
+First, please make sure to download our package. You can either do this from this repo via:
 
 ```
->>> from rename_me.process import Processor
->>> p = Processor()
->>> p.process([0, 0, 0])
+pip install -e .
 ```
 
-### Using the Template
-Rename the folder `rename_me` to the name of your package.
-Fill in the sections of `setup.py` marked `FILL_ME_IN`  
+or you can install it directly via `pip`:
 
-Setting up requirements:  
-1. Create a clean virtual env and install the packages necessary to get a working version of your package locally.
-2. Add all your _direct_ imports to the dependency section of `pyproject.toml`. An import is direct if your code uses 
-this package via an explicit `import x` statement. Pin dependencies to the major version using `~=`, ex. `numpy~=1.0`. This 
-will install the latest compatible version, meaning greater than or equal to the version, but not exceeding `1.*`.
-3. Run `pip freeze > requirements.txt` to write your install to the requirements file. This file will also include 
-indirect dependencies and their versions.
+```
+pip install downstream_fairness
+```
 
+To get started, we recommend just running our `get_bias_mitigator`, so you can get a dictionary of lambda values and
+an adjustment table. To go more in-depth, we recommend going through our demo notebook.
 
-### Local Development
-Run `pip install -e .` from the root directory to get a development install of your package.  
-Run `pytest test` to run the unit tests. 
+```
+from downstream_fairness.process import get_bias_mitigator
 
-
-### Project Structure
-The file structure inside the project folder is a suggestion - feel free to adjust as needed for your use case. 
-
-Typically, our enrichments have a training / fitting stage followed by a predicting / scoring stage. It is suggested to follow this split in the structure of your code: put train code in `train.py` and scoring code in `process.py`.
-Helpers and common functions should go in `utils.py`.
-
-Implement the package using common data types (ex. arrays, tensors, dictionaries) as input. Data preprocessing and manipulation should largely be left up to the client (ex. python jobs). If you'd like to provide additional tooling (ex. loading from local csv), add scripts in a separate scripts folder at the root level.
-
-
-### Versioning
-
-Semantic Versioning:
-
-MAJOR version when you make incompatible API changes  
-MINOR version when you add functionality in a backwards compatible   
-PATCH version when you make backwards compatible bug fixes  
-When incrementing a minor or major version reset the smaller version numbers to zero
-
-Each time the version needs to be updated the text in rename_me/version.py must be changed.
+# Gets the adjustment table and lambdas
+table, lambdas = get_bias_mitigator(YOUR_DATA, 
+                                    sens_col=YOUR_SENSITIVE_ATTRIBUTE_COLUMN_NAME, 
+                                    score_col=YOUR_PREDICTION_PROBABILTIY_COLUMN, 
+                                    label_col=YOUR_LABEL_COLUMN)
+                                    
+# Adjusts the prediction probabilities on the fly
+adjusted_scores = get_adusted_scores(table, 
+                                     DATA_YOU_WANT_ADJUSTED, 
+                                     YOUR_SENSITIVE_ATTRIBUTE_COLUMN_NAME,
+                                     YOUR_PREDICTION_PROBABILTIY_COLUMN,
+                                     lambdas[THE_METRIC_YOU_WANT])
+```

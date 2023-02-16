@@ -3,10 +3,10 @@ requires = ["setuptools>=64.0.0"]  # support for editable installs via pyproject
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "FILL ME IN"
-description = "FILL ME IN "
+name = "downstream_fairness"
+description = "A new post-processing fairness algorithm that operates on the output probabilities of a binary classifier"
 authors = [
-    {"name" = 'ArthurAI', "email" = "info@arthur.ai"}
+    {"name" = 'Daniel Nissani', "email" = "daniel.nissani@arthur.ai"}
 ]
 readme = "README.md"
 license = {text = "MIT"}
@@ -14,15 +14,21 @@ classifiers = []  # fill this in if publishing to public pypi
 dynamic = ["version"]
 
 dependencies = [
-    # FILL ME IN
-    "numpy~=1.0"  # example, remove if not using
+    "numpy==1.24.2",
+    "pandas==2.0.0",
+    "POT==0.9.0",
+    "python-dateutil==2.8.2",
+    "pytz==2023.3",
+    "scipy==1.10.1",
+    "six==1.16.0",
+    "tzdata==2023.3"
 ]
 
 [metadata]
 url = 'http://arthur.ai'
 
 [tool.setuptools.packages.find]
-exclude = ["test"]
+exclude = ["test", "examples"]
 
-[tool.setuptools.dynamic]
-version = {attr = "rename_me.__version__"}
+ [tool.setuptools.dynamic]
+ version = {attr = "downstream_fairness.__version__"}
