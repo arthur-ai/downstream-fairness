@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
-from folktables import adult_filter, public_coverage_filter, ACSIncome, ACSPublicCoverage, ACSMobility
+from folktables import adult_filter, public_coverage_filter, ACSIncome, ACSPublicCoverage, ACSMobility, ACSDataSource
 from aif360.datasets.adult_dataset import AdultDataset
 from aif360.datasets.binary_label_dataset import BinaryLabelDataset
 
@@ -102,7 +102,9 @@ def gen_new_adult(seed: int, verb: bool, task: str = 'income', interv: bool = No
         'public': ACSPublicCoverage,
         'mobility': ACSMobility,
     }
-    acs_data = pd.read_csv('data_raw/acs_data.csv')  # data_source.get_data(states=['CA']) #, download=True)
+
+    data_source = ACSDataSource(survey_year='2018', horizon='1-Year', survey='person')
+    acs_data = data_source.get_data(states=["CA"], download=True)
 
     if verb:
         print("data downloaded")
