@@ -34,9 +34,9 @@ validate-install:
   script:
     - pip install .
     - python -c "import downstream_fairness"  # replace with the name of your package
-  only:
-    - merge_requests
-    - $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 tag_with_version:
   stage: deploy
@@ -44,12 +44,12 @@ tag_with_version:
     - git config --global user.email "gitlab_ci@arthur.ai"
     - git config --global user.name "GitLab CI"
   script:
-    - VERSION=$(cat version.py | grep -o '".*"' | sed 's/"//g')
+    - VERSION=$(cat downstream_fairness/version.py | grep -o '".*"' | sed 's/"//g')
     - git tag "$VERSION"
     - git tag
-    - git push --tags http://root:$PRIVATE_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:$CI_DEFAULT_BRANCH
-  only:
-    - $CI_DEFAULT_BRANCH
+    - git push --tags https://private-token:$PRIVATE_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:$CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 push_to_nexus:
   variables:
@@ -63,12 +63,12 @@ push_to_nexus:
           login '"${NEXUS_REPOSITORY_USERNAME}"'
           password '"${NEXUS_REPOSITORY_PASSWORD}" >> ~/.netrc
     - pip install pyyaml twine
-    - cd python
+    - pip install --upgrade build
   script:
-    - python setup_backup.py sdist -d publish bdist_wheel -d publish
+    - python -m build --sdist --wheel --outdir publish
     - twine upload --repository-url https://repository.arthur.ai/repository/pypi-local/ -u ${NEXUS_REPOSITORY_USERNAME} -p ${NEXUS_REPOSITORY_PASSWORD} --verbose publish/*
-  only:
-    - $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 push_to_pypi:
   image: python:3-buster
@@ -76,18 +76,20 @@ push_to_pypi:
   before_script:
     - pip install pyyaml twine
     - pip install --upgrade build
-    - cd python
   script:
     - python -m build --sdist --wheel --outdir publish
     - twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} --verbose publish/*
-  only:
-    - $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 push_to_github:
-  image: alpine/git
+  image:
+    name: alpine/git
+    entrypoint: [""]
   stage: deploy
   script:
-    - git remote add gh https://automator-arthur:$GITLAB_TOKEN@github.com/arthur-ai/downstream-fairness
-    - git push gh $CI_DEFAULT_BRANCH
-  only:
-    - $CI_DEFAULT_BRANCH
+    - git remote add gh https://automator-arthur:$GITHUB_TOKEN@github.com/arthur-ai/downstream-fairness
+    - git checkout $CI_COMMIT_BRANCH
+    - git push gh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
