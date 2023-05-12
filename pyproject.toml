@@ -6,29 +6,37 @@ build-backend = "setuptools.build_meta"
 name = "downstream_fairness"
 description = "A new post-processing fairness algorithm that operates on the output probabilities of a binary classifier"
 authors = [
+    {"name" = 'Arthur', "email" = "info@arthur.ai"},
     {"name" = 'Daniel Nissani', "email" = "daniel.nissani@arthur.ai"}
 ]
 readme = "README.md"
 license = {text = "MIT"}
-classifiers = []  # fill this in if publishing to public pypi
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
+]
 dynamic = ["version"]
 
 dependencies = [
-    "numpy==1.24.2",
-    "pandas==2.0.0",
+    "numpy>=1.19.0,<2",
+    "pandas>=1.2.0",
     "POT==0.9.0",
-    "python-dateutil==2.8.2",
-    "pytz==2023.3",
-    "scipy==1.10.1",
-    "six==1.16.0",
-    "tzdata==2023.3"
+    "python-dateutil>=2.7,<3",
+    "pytz>=2020.1",
+    "scipy~=1.10.1",
+    "tzdata==2020.1"
 ]
 
-[metadata]
-url = 'http://arthur.ai'
+[project.urls]
+Homepage = 'http://arthur.ai'
+Repository = "https://github.com/arthur-ai/downstream-fairness"
 
 [tool.setuptools.packages.find]
-exclude = ["test", "examples"]
+include = ["downstream_fairness", "downstream_fairness.*"]
+exclude = ["test", "test.*"]
 
  [tool.setuptools.dynamic]
  version = {attr = "downstream_fairness.__version__"}
